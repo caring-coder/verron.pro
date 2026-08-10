@@ -16,11 +16,6 @@ a single place to understand how they fit together, how to build them, and what 
 - The `mvn site` output, the blog at verron.pro, and the module `README.adoc` files are
   *supporting* material; this file is the orientation anchor.
 
-> **Framing note.** Earlier docs previously called this a "Maven monorepo" and described
-> "published sites." That wording has been corrected to match the local-org framing used in this
-> document: a personal organization of interrelated individual repos, not a monorepo and not
-> public-facing documentation.
-
 == Member projects
 
 
@@ -116,7 +111,7 @@ Deploy to Maven Central uses the `gpg` profile: `mvn deploy -Pgpg`.
 (`office-stamper`, `asciidoc`, `imageio`, `maven-skin`, `blog`) is its own git repository, wired
 in here as a **git submodule** — registered in `.gitmodules` (branch `main`) against each
 project's `verronpro` origin remote (`git@github.com:/verronpro/<project>`). The "interrelated
-individual repos" framing is now literally true while still being a single checkout.
+individual repos" framing is literally true while still being a single checkout.
 
 - Each project keeps its own history and remote; the root carries only orientation docs
   (`README.adoc`, `CONTRIBUTING.adoc`, `adr/`), the shared `pom.xml` reactor, and the submodule
@@ -125,29 +120,13 @@ individual repos" framing is now literally true while still being a single check
   * Clone with submodules: `git clone --recurse-submodules <root-url>`
   * Pull upstream changes: `git submodule update --remote --merge`
   * The Maven reactor build (`mvn clean install`) is unchanged — the submodule directories are
-    simply present on disk, so no reactor adjustment was needed.
-
-**Decision history:** the earlier "option under consideration — git submodules" was decided in
-favor and implemented (see the TODO list). The known con (submodule workflow overhead) is
-accepted; the reactor build needed no adjustment because the folders remain in place.
+    present on disk, so the reactor build needs no adjustment.
 
 == Documentation system
 
-The documentation system (per-module `mvn site` output, `README.adoc`, the blog, and the
-maven-skin templates) was reviewed and improved across four priorities (broken links,
-de-duplication, orphan cleanup, and governance). The org-level README you are reading
-satisfies the need for a single orientation anchor. The hollow-site fork — whether to invest
-in real per-module sites or treat READMEs as canonical — was resolved in
-`adr/002-documentation-p1-landing-pages.adoc` (decision: real per-module landing pages), made
-in light of the "personal, not published" intent stated above.
-
-== Open decisions / TODO
-
-- [x] Adopt git submodules: root is now a git superproject with `office-stamper`, `asciidoc`,
-  `imageio`, `maven-skin`, `blog` registered as submodules (`.gitmodules`, branch `main`). (done)
-- [x] Consolidate AI guidance into standalone per-project `AGENTS.md`; removed `CLAUDE.md` and
-  `.junie/` files, and the root `AGENTS.md`. (done)
-- [x] Fix stale root `<url>` in `pom.xml` (`https://imageio.verron.pro` → `https://verron.pro`); the root
-  `pom.xml` already carries `<url>https://verron.pro</url>`. The `imageio.verron.pro` domain is
-  intentionally retained inside the `imageio` subfolder (its docs live there). (done)
-- [x] Add missing `LICENSE` to `asciidoc` and `imageio`. (done)
+Documentation is layered: each project's per-module `mvn site` output, its `README.adoc`, the
+blog, and the shared maven-skin templates. Each module's `README.adoc` is the canonical
+per-project landing page — recorded as a decision in
+`adr/002-documentation-p1-landing-pages.adoc` (real per-module landing pages, consistent with
+this org being personal rather than published). This org-level `README.adoc` is the single
+orientation anchor.
