@@ -1,0 +1,147 @@
+= verron.pro — local project organization
+
+> **Audience:** Joseph Verron (owner / sole main author) and any AI agent assisting on
+> these projects. This is a **personal orientation doc**, not public-facing documentation.
+> Do not treat it as something to publish or "ship."
+
+== What this is (and isn't)
+
+This directory is a **local organization (workspace) that groups several interrelated but
+individually-owned repositories**. It is **not a monorepo** in the publishing sense: the
+repos are meant to live and evolve on their own, and this root exists to give me (and agents)
+a single place to understand how they fit together, how to build them, and what the rules are.
+
+- **It is:** a personal control panel / index for my projects, written for me and for AI help.
+- **It is not:** a deployed documentation site, a library distribution, or external-facing docs.
+- The `mvn site` output, the blog at verron.pro, and the module `README.adoc` files are
+  *supporting* material; this file is the orientation anchor.
+
+> **Framing note.** Earlier docs previously called this a "Maven monorepo" and described
+> "published sites." That wording has been corrected to match the local-org framing used in this
+> document: a personal organization of interrelated individual repos, not a monorepo and not
+> public-facing documentation.
+
+== Member projects
+
+
+
+
+|===
+| Project | Role | Depends on | Notes
+
+| `office-stamper`
+| Flagship: Java template engine for DOCX generation via SpEL (docx4j).
+| `asciidoc`
+| 4 modules: `engine`, `utils`, `cli`, `excel-context`. Public API entry: `OfficeStampers`.
+
+| `asciidoc`
+| AsciiDoc parse / convert / render library (used by office-stamper).
+| `imageio`
+| 5 modules: `asciidoc-core` → `asciidoc-converters` → `asciidoc-docx` → `asciidoc-compiler` → `asciidoc-preview`.
+
+| `imageio`
+| ImageIO plugins for vector formats: SVG, EMF, WMF.
+| —
+| 3 independent modules: `imageio-svg`, `imageio-emf`, `imageio-wmf`.
+
+| `maven-skin`
+| Custom Maven **site skin** (docs styling only).
+| —
+| Consumed only at site-generation time.
+
+| `blog`
+| Jekyll static site at [verron.pro](https://verron.pro).
+| —
+| Posts in `blog/_posts/`, drafts in `blog/_drafts/`.
+|===
+
+=== Dependency direction
+
+[source]
+----
+office-stamper  ──▶  asciidoc  ──▶  imageio
+      │
+      └── (docs styling) ──▶ maven-skin
+blog  — independent, the public face at verron.pro
+----
+
+`maven-skin` is documentation-only and never a runtime dependency. `blog` is independent of the
+Java build.
+
+== Orientation for AI agents
+
+When working in this org, the guidance files in priority order:
+
+1. **This file (`README.adoc`)** — what the org is and how the pieces relate.
+2. **Per-project `AGENTS.md`** — each project carries its own standalone, agent-agnostic
+   `AGENTS.md` at its root (`office-stamper/AGENTS.md`, `asciidoc/AGENTS.md`,
+   `imageio/AGENTS.md`, `blog/AGENTS.md`, `maven-skin/AGENTS.md`). Read the one for the project
+   you are working in; they are written to stand alone and do not assume the projects are related.
+3. **Per-module `README.adoc`** — human-oriented module orientation.
+
+Each module's `README.adoc` is the canonical per-project landing page:
+`office-stamper/README.adoc`, `asciidoc/README.adoc`, `imageio/README.adoc`,
+`maven-skin/README.adoc`, `blog/README.adoc`.
+
+== Build cheatsheet
+
+All Java projects require **JDK 25**. `groupId` prefix is `pro.verron`.
+
+[source,bash]
+----
+# Build everything (Maven reactor)
+mvn clean install
+
+# Single module by directory name
+mvn clean install -pl <module-name>        # e.g. -pl office-stamper
+mvn clean install -pl office-stamper -am   # also build its dependencies
+
+# Tests
+mvn test
+mvn test -Dtest=TestClassName -pl <module-name>
+
+# Docs site (uses maven-skin)
+mvn site
+
+# Blog (Jekyll via Maven)
+mvn compile -pl blog        # build
+mvn -Pserve -pl blog        # serve locally
+----
+
+Deploy to Maven Central uses the `gpg` profile: `mvn deploy -Pgpg`.
+
+== Git / organization model
+
+**Current state:** one working tree with a multi-module Maven reactor (`pom.xml` at root).
+
+**Intended model:** each project is its own individual repository, organized together here
+locally for convenience.
+
+**Option under consideration — git submodules:** promote `office-stamper`, `asciidoc`,
+`imageio`, `maven-skin`, `blog` to separate repos and wire them in as **git submodules** under
+this root. This would make the "interrelated individual repos" framing literally true and let
+each project have its own history / remote while keeping a single checkout.
+
+- Pros: clean separation, independent histories, still one checkout, easy to publish a subset.
+- Cons: submodule workflow overhead; the Maven reactor build needs adjustment.
+- **Status: not yet decided / not implemented.** Recorded here so the decision isn't lost.
+
+== Documentation system
+
+The documentation system (per-module `mvn site` output, `README.adoc`, the blog, and the
+maven-skin templates) was reviewed and improved across four priorities (broken links,
+de-duplication, orphan cleanup, and governance). The org-level README you are reading
+satisfies the need for a single orientation anchor. The hollow-site fork — whether to invest
+in real per-module sites or treat READMEs as canonical — was resolved in
+`adr/002-documentation-p1-landing-pages.adoc` (decision: real per-module landing pages), made
+in light of the "personal, not published" intent stated above.
+
+== Open decisions / TODO
+
+- [ ] Decide git-submodules vs. keep single working tree (see above).
+- [x] Consolidate AI guidance into standalone per-project `AGENTS.md`; removed `CLAUDE.md` and
+  `.junie/` files, and the root `AGENTS.md`. (done)
+- [x] Fix stale root `<url>` in `pom.xml` (`https://imageio.verron.pro` → `https://verron.pro`); the root
+  `pom.xml` already carries `<url>https://verron.pro</url>`. The `imageio.verron.pro` domain is
+  intentionally retained inside the `imageio` subfolder (its docs live there). (done)
+- [x] Add missing `LICENSE` to `asciidoc` and `imageio`. (done)

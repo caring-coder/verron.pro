@@ -1,0 +1,25 @@
+[submodule "office-stamper"]
+    path = office-stamper
+    url = git@github.com:/verronpro/office-stamper
+    branch = main
+
+[submodule "asciidoc"]
+    path = asciidoc
+    url = git@github.com:/verronpro/asciidoc.git
+    branch = main
+
+[submodule "imageio"]
+    path = imageio
+    url = git@github.com:/verronpro/imageio.git
+    branch = main
+
+[submodule "maven-skin"]
+    path = maven-skin
+    url = git@github.com:/verronpro/maven-skin.git
+    branch = main
+
+[submodule "blog"]
+    path = blog
+    url = git@github.com:/verronpro/blog.git
+    branch = main
+

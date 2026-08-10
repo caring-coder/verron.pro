@@ -1,0 +1,67 @@
+= ADR 002: P1 — Real per-module landing pages for hollow sites
+
+== Status
+
+Accepted
+
+== Context
+
+A 2026-08-09 survey of the documentation *system* diagnosed it as
+"stubbed by default": of 16 module Maven sites under `C:\workspace\verron.pro`, 14 are
+hollow. Every hollow module's `src/site/asciidoc/index.adoc` is a 33-byte
+`include::../../../README.adoc[]`, and several of the included module READMEs are
+themselves stubs (~1.1 KB). Only `office-stamper/engine` and `maven-skin` carry real
+sub-pages. The result is 14 published sites that imply documentation which does not
+exist.
+
+P1 of the plan is the key fork: either (a) promote each module README into a real
+landing page, or (b) accept READMEs as canonical and stop generating empty sites.
+This ADR records the chosen direction before any bulk work.
+
+== Decision
+
+We choose **(a): promote each module README into a real landing page**, implemented
+as **richer dedicated site pages** in the engine/maven-skin style — *not* by merely
+expanding the README.
+
+Rationale:
+
+* The READMEs are already surfaced into each site via `index.adoc`'s include, so the
+  published site already shows the README. The gap is *depth beyond the README*, not
+  the README itself. Dedicated pages fill that gap without moving the README's job.
+* Keeping the README as the short, GitHub-facing overview and the site pages as the
+  deeper published reference preserves one canonical entry point per module while
+  still giving `mvn site` something real to render.
+
+Scope: **all 14 hollow modules** (the `asciidoc` family of 6, the `imageio` family of
+4, and `office-stamper` root + `cli` + `excel-context` + `utils`). `engine` and
+`maven-skin` are already compliant and are excluded.
+
+Standard page set per module (a consistent template for the 14):
+
+* `index.adoc` — keep the existing `include::../../../README.adoc[]`; this remains the
+  overview / entry point.
+* `getting-started.adoc` — prerequisites (Java 25, Maven 3.9+), adding the dependency,
+  a build-from-source path, and an expanded quick start.
+* `features.adoc` — capabilities, public API surface, design goals, and limitations.
+* `examples.adoc` — concrete usage snippets grounded in the module's public API.
+* module-specific extras (`configuration.adoc`, …) only where a module genuinely
+  warrants them.
+
+Wiring: each new page is registered as an `<item>` in the module's `src/site/site.xml`
+`<menu name="Module">` (mirroring `maven-skin`'s Documentation menu), so it appears in
+the published nav and is not orphaned.
+
+Sequencing: write this ADR, then produce **one example module** (`asciidoc-core`) for
+review, then roll the same template out to the remaining 13 modules.
+
+== Consequences
+
+* Each of the 14 module sites becomes genuinely useful instead of a hollow stub.
+* Two documentation surfaces per module now exist (README + site). This duplication is
+  accepted deliberately: the README is the repo-browser entry point; the site is the
+  published reference. To limit drift, `index.adoc` continues to `include` the README,
+  and site pages cover material *beyond* the README rather than restating it.
+* Maintenance grows: ~2–3 new `.adoc` files plus a `site.xml` edit per module.
+* A consistent page template (this ADR) keeps the 14 sites uniform and makes the bulk
+  rollout mechanical.

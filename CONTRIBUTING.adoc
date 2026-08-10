@@ -1,0 +1,65 @@
+= Contributing & Governance — verron.pro local project organization
+
+> Audience: contributors and AI agents working across the `pro.verron` repos
+> grouped under this local workspace. This is *org-wide* governance, not
+> project-specific setup (see each repo's own `CONTRIBUTING.adoc` / `AGENTS.md`).
+
+== Scope
+
+This document defines conventions shared by every member project
+(`office-stamper`, `asciidoc`, `imageio`, `maven-skin`, `blog`). Each project
+remains an individually-owned repository with its own history and remote; this
+root is a local organization, not a monorepo.
+
+== Contributing
+
+Each project carries its own contributor guide:
+
+* `office-stamper/CONTRIBUTING.adoc` is the **canonical model** — other repos
+  should mirror its structure (ways to contribute, dev workflow, coding
+  standards, license agreement).
+* Project-specific setup (clone URL, module layout, test flags) lives in that
+  repo's `CONTRIBUTING.adoc` and `AGENTS.md`.
+
+Expectations that apply org-wide:
+
+* Use AsciiDoc for documentation (`*.adoc`); never introduce Markdown docs
+  outside `blog/` and the per-project `AGENTS.md`.
+* All Java projects target **JDK 25**; `groupId` prefix is `pro.verron`.
+* By contributing you agree to license your contributions under the project's
+  license (MIT for the Java libraries; CC0 for `blog` content).
+
+== CHANGELOG convention
+
+There is no separate `CHANGELOG.md`. Each project records user-facing changes
+in a `release-notes.adoc` kept at the site root and linked from its `site.xml`
+navigation. Current instances:
+
+* `office-stamper/engine/src/site/asciidoc/release-notes.adoc`
+* `asciidoc/src/site/asciidoc/release-notes.adoc`
+
+For a new release, add an entry to the relevant `release-notes.adoc` (version,
+date, summary of changes). Do not create a divergent `CHANGELOG.md`.
+
+== ADRs (architecture decision records)
+
+Repo-wide decisions live in the single org-level `adr/` folder at this root
+(e.g. `adr/002-documentation-p1-landing-pages.adoc`). Project-local decisions
+may additionally live under `<project>/src/site/asciidoc/adr/`
+(e.g. `asciidoc/src/site/asciidoc/adr/001-asciidoc-preview-schema.adoc`).
+
+ADR format: `NNN-short-title.adoc` with `== Status`
+(Proposed / Accepted / Deprecated / Superseded) and
+`== Context` / `== Decision` / `== Consequences` sections.
+
+== Licensing
+
+All Java libraries are released under the **MIT License** with a `LICENSE` file
+at their root (`office-stamper`, `maven-skin`, `asciidoc`, `imageio`). The
+`blog` content uses **CC0 1.0** (`blog/LICENSE`). The `LICENSE` file is the
+canonical source of truth; do not reference the license only in prose.
+
+== Relationship to other docs
+
+* `README.adoc` (this root) — what the org is and how the pieces relate.
+* Per-project `AGENTS.md` — agent-agnostic working guidance for that repo.

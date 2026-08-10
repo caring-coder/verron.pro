@@ -1,0 +1,11 @@
+# Build output
+target/
+
+# IDE / tooling
+.idea/
+.junie/
+
+# OS
+Thumbs.db
+ehthumbs.db
+.DS_Store
