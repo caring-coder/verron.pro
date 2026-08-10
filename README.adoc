@@ -112,19 +112,24 @@ Deploy to Maven Central uses the `gpg` profile: `mvn deploy -Pgpg`.
 
 == Git / organization model
 
-**Current state:** one working tree with a multi-module Maven reactor (`pom.xml` at root).
+**Model:** this root is a git **superproject**. Each member project
+(`office-stamper`, `asciidoc`, `imageio`, `maven-skin`, `blog`) is its own git repository, wired
+in here as a **git submodule** — registered in `.gitmodules` (branch `main`) against each
+project's `verronpro` origin remote (`git@github.com:/verronpro/<project>`). The "interrelated
+individual repos" framing is now literally true while still being a single checkout.
 
-**Intended model:** each project is its own individual repository, organized together here
-locally for convenience.
+- Each project keeps its own history and remote; the root carries only orientation docs
+  (`README.adoc`, `CONTRIBUTING.adoc`, `adr/`), the shared `pom.xml` reactor, and the submodule
+  links.
+- Working with the submodules:
+  * Clone with submodules: `git clone --recurse-submodules <root-url>`
+  * Pull upstream changes: `git submodule update --remote --merge`
+  * The Maven reactor build (`mvn clean install`) is unchanged — the submodule directories are
+    simply present on disk, so no reactor adjustment was needed.
 
-**Option under consideration — git submodules:** promote `office-stamper`, `asciidoc`,
-`imageio`, `maven-skin`, `blog` to separate repos and wire them in as **git submodules** under
-this root. This would make the "interrelated individual repos" framing literally true and let
-each project have its own history / remote while keeping a single checkout.
-
-- Pros: clean separation, independent histories, still one checkout, easy to publish a subset.
-- Cons: submodule workflow overhead; the Maven reactor build needs adjustment.
-- **Status: not yet decided / not implemented.** Recorded here so the decision isn't lost.
+**Decision history:** the earlier "option under consideration — git submodules" was decided in
+favor and implemented (see the TODO list). The known con (submodule workflow overhead) is
+accepted; the reactor build needed no adjustment because the folders remain in place.
 
 == Documentation system
 
@@ -138,7 +143,8 @@ in light of the "personal, not published" intent stated above.
 
 == Open decisions / TODO
 
-- [ ] Decide git-submodules vs. keep single working tree (see above).
+- [x] Adopt git submodules: root is now a git superproject with `office-stamper`, `asciidoc`,
+  `imageio`, `maven-skin`, `blog` registered as submodules (`.gitmodules`, branch `main`). (done)
 - [x] Consolidate AI guidance into standalone per-project `AGENTS.md`; removed `CLAUDE.md` and
   `.junie/` files, and the root `AGENTS.md`. (done)
 - [x] Fix stale root `<url>` in `pom.xml` (`https://imageio.verron.pro` → `https://verron.pro`); the root
